@@ -20,6 +20,10 @@ const (
 	}
 )
 
+pub struct JWT {
+	algorithm string
+}
+
 pub struct JwtClaims {
 	iss string
 	sub string
@@ -54,6 +58,9 @@ pub struct EncodeOptions {
 }
 
 pub fn encode(options EncodeOptions) string {
+	jwt := JWT{
+		algorithm: options.algorithm
+	}
 	mut headers := JoseHeader{
 		alg: options.algorithm
 	}
@@ -64,30 +71,54 @@ pub fn encode(options EncodeOptions) string {
 	segments << base64.encode_url(json_payload)
 	signing_input := segments.join('.')
 	if options.algorithm !in algorithms {
-		panic('algorithm $options.algorithm is not supported, fallback to HS256')
+		panic('algorithm $options.algorithm is not supported')
 	}
-	hash_fn := algorithms[options.algorithm]
-	block_size := block_sizes[options.algorithm]
-	signature := hmac.new(options.key.bytes(), signing_input.bytes(), hash_fn, block_size)
-	segments << base64.encode_url(signature.bytestr())
+	segments << jwt.sign(signing_input, options.key)
 	return segments.join('.')
 }
 
+fn (jwt JWT) sign(message string, key string) string {
+	hash_fn := algorithms[jwt.algorithm]
+	block_size := block_sizes[jwt.algorithm]
+	signature := hmac.new(key.bytes(), message.bytes(), hash_fn, block_size)
+	return base64.encode_url(signature.bytestr())
+}
+
+fn (jwt JWT) verify(message string, key string, signature string) bool {
+	return jwt.sign(message, key) == signature
+}
+
 pub struct DecodeOptions {
-	jwt       string
+	token     string
 	key       string
 	algorithm string = 'HS256'
 	verify    bool   = true
 }
 
-pub fn decode<T>(options DecodeOptions) ?T {
-	split_jwt := options.jwt.split('.')
-	signing_input := '${split_jwt[0]}.${split_jwt[1]}'
-	header_segment := split_jwt[0]
-	payload_segment := split_jwt[1]
-	crypto_segment := split_jwt[2]
-	header_data := base64.decode_url(header_segment)
-	return none
+pub fn decode(options DecodeOptions) ?json2.Any {
+	jwt := JWT{
+		algorithm: options.algorithm
+	}
+	split_token := options.token.split('.')
+	signing_input := '${split_token[0]}.${split_token[1]}'
+	signature := split_token[2]
+	if options.verify {
+		if !jwt.verify(signing_input, options.key, signature) {
+			return none
+		}
+	}
+	// header_segment := split_jwt[0]
+	payload_segment := split_token[1]
+	payload_data := base64.decode_url(payload_segment)
+	payload := json2.raw_decode(payload_data)?
+	return payload
+}
+
+struct Pload {
+pub mut:
+	sub  string
+	name string
+	iat  string
 }
 
 fn main() {
@@ -101,5 +132,10 @@ fn main() {
 		key: 'secret'
 		algorithm: 'HS512'
 	})
-	println(s)
+	t := decode({
+		token: s
+		key: 'secret'
+		algorithm: 'HS512'
+	}) or { json2.Any{} }
+	println(t)
 }
