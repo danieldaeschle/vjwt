@@ -2,7 +2,7 @@ module main
 
 import jwt
 
-fn test_encode() {
+fn test_encode_map() {
 	payload := {
 		'sub': '1234567890'
 		'name': 'John Doe'
