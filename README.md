@@ -2,6 +2,25 @@
 
 # Getting started
 
+## Encode
+To parse a struct to a JWT token you just have to do:
+> This example is using a map[string]string as payload
+```v
+import jwt
+
+payload := {
+    'sub': '1234567890'
+    'name': 'John Doe'
+    'iat': '1516239022'
+}
+token := jwt.encode({
+	payload: payload
+	key: 'secret'
+})
+```
+
+## Decode
+
 # Implementation progress
 - [x] Sign
 - [ ] Verify
