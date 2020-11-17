@@ -1,4 +1,6 @@
+> Currently it's work in progress until the json module in V is finalized.
 # jwt for V
+A small native library to encode and decode JWT tokens in V.
 
 # Getting started
 
