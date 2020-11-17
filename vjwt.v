@@ -1,4 +1,4 @@
-module main
+module jwt
 
 import x.json2
 import json
@@ -112,30 +112,4 @@ pub fn decode(options DecodeOptions) ?json2.Any {
 	payload_data := base64.decode_url(payload_segment)
 	payload := json2.raw_decode(payload_data)?
 	return payload
-}
-
-struct Pload {
-pub mut:
-	sub  string
-	name string
-	iat  string
-}
-
-fn main() {
-	payload := {
-		'sub': '1234567890'
-		'name': 'John Doe'
-		'iat': '1516239022'
-	}
-	s := encode({
-		payload: payload
-		key: 'secret'
-		algorithm: 'HS512'
-	})
-	t := decode({
-		token: s
-		key: 'secret'
-		algorithm: 'HS512'
-	}) or { json2.Any{} }
-	println(t)
 }
