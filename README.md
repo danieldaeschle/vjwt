@@ -6,7 +6,7 @@ A small native library to encode and decode JWT tokens in V.
 
 ## Encode
 To parse a struct to a JWT token you just have to do:
-> This example is using a map[string]string as payload
+> This example is using a `map[string]string` as payload.
 ```v
 import jwt
 
