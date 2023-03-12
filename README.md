@@ -1,6 +1,6 @@
 > Currently it's work in progress until the json module in V is finalized.
 # jwt for V
-A small native library to encode and decode JWT tokens in V.
+A small native library to encode and decode JWT in V.
 
 # Getting started
 
@@ -15,17 +15,31 @@ payload := {
     'name': 'John Doe'
     'iat': '1516239022'
 }
-token := jwt.encode({
+token := jwt.encode(
 	payload: payload
 	key: 'secret'
-})
+)!
 ```
 
 ## Decode
 
+```v
+import jwt
+    
+struct User {
+   name string
+}
+    
+obj := jwt.decode[User](
+	payload: payload
+	key: 'secret'
+)!
+```
+
+
 # Implementation progress
 - [x] Sign
-- [ ] Verify
+- [x] Verify
 - [x] HS256
 - [x] HS384
 - [x] HS512
