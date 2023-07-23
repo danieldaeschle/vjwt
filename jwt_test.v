@@ -1,6 +1,5 @@
 module jwt
 
-import jwt
 import x.json2
 
 fn test_encode_map_hs256() {
